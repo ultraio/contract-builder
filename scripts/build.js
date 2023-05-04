@@ -24,7 +24,7 @@ function matchRule(str, rule) {
 
     fs.renameSync('package.json', 'package.json.backup');
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 4));
-    await exec(['package.json', '--out-path', 'releases']);
+    await exec(['package.json', '--out-path', 'releases', '--compress', 'Brotli']);
     fs.renameSync('package.json.backup', 'package.json');
 
     const releaseName = `${PROGRAM_NAME}-v${releaseVersion}`;
