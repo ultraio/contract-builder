@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.ts",
     "bin": {
-        "contract-builder": "./bin/index.js"
+        "metadataTool": "./bin/index.js"
     },
     "bugs": {
         "url": "https://github.com/ultraio/contract-builder/issues"
@@ -21,6 +21,7 @@
         "test": "jest"
     },
     "dependencies": {
+        "commander": "^10.0.1",
         "docker-cli-js": "^2.10.0",
         "inquirer": "8.2.4"
     },

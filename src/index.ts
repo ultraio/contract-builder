@@ -1,5 +1,13 @@
+import fs from 'fs';
 import inquirer from 'inquirer';
 import * as Utility from './utility';
+import { ErrorGenerator } from './utility/errorGenerator';
+
+import { Command } from 'commander';
+
+const program = new Command();
+
+const DEFAULT_OUTPUT_PATH = '~/ultra/contracts/build'
 
 async function main() {
     // Primitive check to see if Docker is installed...
@@ -12,13 +20,29 @@ async function main() {
         return;
     }
 
-    const { programStarted } = await inquirer.prompt({
-        name: 'programStarted',
-        message: 'Hello World! This program will exit after response.',
-        type: 'confirm',
-    });
+    program
+        .option('-i, --input <inputPath>', 'Specify the input path')
+        .option('-o, --output <outputPath>', 'Specify the output path')
+        .parse(process.argv);
 
-    console.log(`Your response was: ${programStarted}`);
+
+    let inputPath = program.opts().input || '';
+    const outputPath = program.opts().output || DEFAULT_OUTPUT_PATH;
+
+    if (!inputPath) {
+        ({ inputPath } = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'inputPath',
+                message: 'Enter directory/file path:',
+                validate(answer) {
+                    return fs.existsSync(answer) ? true : ErrorGenerator.get('INVALID_PATH', answer);
+                },
+            },
+        ]));
+    }
+
+    console.log(`input ${inputPath}, output: ${outputPath}`);
 }
 
 main();
