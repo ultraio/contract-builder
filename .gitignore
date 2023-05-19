@@ -108,3 +108,6 @@ dist
 .tern-port
 
 metadata-tool-report.txt
+
+# Mac
+*.DS_Store

@@ -21,6 +21,7 @@
         "test": "jest"
     },
     "dependencies": {
+        "commander": "^10.0.1",
         "docker-cli-js": "^2.10.0",
         "inquirer": "8.2.4"
     },

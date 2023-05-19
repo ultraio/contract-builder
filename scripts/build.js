@@ -33,7 +33,7 @@ function matchRule(str, rule) {
     fs.renameSync(`./releases/${PROGRAM_NAME}-win.exe`, `./releases/${releaseName}-win.exe`);
 
     packageJson.bin = {
-        metadataTool: './bin/index.js',
+        [PROGRAM_NAME]: './bin/index.js',
     };
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 4));
 })();
