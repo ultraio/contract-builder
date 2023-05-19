@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.ts",
     "bin": {
-        "metadataTool": "./bin/index.js"
+        "contract-builder": "./bin/index.js"
     },
     "bugs": {
         "url": "https://github.com/ultraio/contract-builder/issues"
