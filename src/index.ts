@@ -1,13 +1,34 @@
 import fs from 'fs';
+import path from 'path';
 import inquirer from 'inquirer';
-import * as Utility from './utility';
-import { ErrorGenerator } from './utility/errorGenerator';
 
 import { Command } from 'commander';
 
+import * as Utility from './utility';
+import { ErrorGenerator } from './utility/errorGenerator';
+
+
 const program = new Command();
 
-const DEFAULT_OUTPUT_PATH = '~/ultra/contracts/build'
+const CPP_FILE_EXTENSIONS = [
+    '.cpp',
+    '.hpp',
+    '.cc',
+    '.h'
+]
+
+function validatePath(inputPath) {
+    if (fs.lstatSync(inputPath).isDirectory()) {
+        return true
+    }
+    const fileExtension = path.extname(inputPath)
+    console.debug(`ext: ${fileExtension}`)
+    return CPP_FILE_EXTENSIONS.indexOf(path.extname(inputPath)) != -1
+}
+
+function getOutputPath(inputPath) {
+    return fs.lstatSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath)
+}
 
 async function main() {
     // Primitive check to see if Docker is installed...
@@ -26,10 +47,18 @@ async function main() {
         .parse(process.argv);
 
 
-    let inputPath = program.opts().input || '';
-    const outputPath = program.opts().output || DEFAULT_OUTPUT_PATH;
+    let inputPath, outputPath;
 
-    if (!inputPath) {
+    if (process.argv.length == 3) {
+        // drag & drop
+        inputPath = process.argv[2];
+
+    } else if (program.getOptionValue('input')) {
+        // command line
+        inputPath = program.opts().input;
+        outputPath = program.getOptionValue('output') ? program.opts().output : '';
+    } else {
+        // user double-clicked on an executable
         ({ inputPath } = await inquirer.prompt([
             {
                 type: 'input',
@@ -41,7 +70,12 @@ async function main() {
             },
         ]));
     }
-
+    inputPath = path.resolve(inputPath);
+    if (!validatePath(inputPath)) {
+        console.log(`File extension is not a valid C++ extension, supported extensions: ${CPP_FILE_EXTENSIONS}`);
+        process.exit(1);
+    }
+    outputPath = getOutputPath(inputPath);
     console.log(`input ${inputPath}, output: ${outputPath}`);
 }
 
