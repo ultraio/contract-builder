@@ -1,33 +1,24 @@
 import fs from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
-
 import { Command } from 'commander';
-
 import * as Utility from './utility';
-import { ErrorGenerator } from './utility/errorGenerator';
-
 
 const program = new Command();
 
-const CPP_FILE_EXTENSIONS = [
-    '.cpp',
-    '.hpp',
-    '.cc',
-    '.h'
-]
+const CPP_FILE_EXTENSIONS = ['.cpp', '.hpp', '.cc', '.h'];
 
 function validatePath(inputPath) {
     if (fs.lstatSync(inputPath).isDirectory()) {
-        return true
+        return true;
     }
-    const fileExtension = path.extname(inputPath)
-    console.debug(`ext: ${fileExtension}`)
-    return CPP_FILE_EXTENSIONS.indexOf(path.extname(inputPath)) != -1
+    const fileExtension = path.extname(inputPath);
+    console.debug(`ext: ${fileExtension}`);
+    return CPP_FILE_EXTENSIONS.indexOf(path.extname(inputPath)) != -1;
 }
 
 function getOutputPath(inputPath) {
-    return fs.lstatSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath)
+    return fs.lstatSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath);
 }
 
 async function main() {
@@ -46,13 +37,11 @@ async function main() {
         .option('-o, --output <outputPath>', 'Specify the output path')
         .parse(process.argv);
 
-
     let inputPath, outputPath;
 
     if (process.argv.length == 3) {
         // drag & drop
         inputPath = process.argv[2];
-
     } else if (program.getOptionValue('input')) {
         // command line
         inputPath = program.opts().input;
@@ -65,16 +54,18 @@ async function main() {
                 name: 'inputPath',
                 message: 'Enter directory/file path:',
                 validate(answer) {
-                    return fs.existsSync(answer) ? true : ErrorGenerator.get('INVALID_PATH', answer);
+                    return fs.existsSync(answer) ? true : Utility.ErrorGenerator.get('INVALID_PATH', answer);
                 },
             },
         ]));
     }
+
     inputPath = path.resolve(inputPath);
     if (!validatePath(inputPath)) {
         console.log(`File extension is not a valid C++ extension, supported extensions: ${CPP_FILE_EXTENSIONS}`);
         process.exit(1);
     }
+
     outputPath = getOutputPath(inputPath);
     console.log(`input ${inputPath}, output: ${outputPath}`);
 }
