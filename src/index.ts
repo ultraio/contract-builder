@@ -24,10 +24,25 @@ async function main() {
         return;
     }
 
-    await System.docker.stopRelevantContainers();
-    await System.docker.startContainer(inputPath);
+    const didClearContainers = await System.docker.stopRelevantContainers();
+    if (!didClearContainers) {
+        console.log(`Could not clear pre-existing containers.`);
+        console.log(`Program will exit in 10 seconds...`);
+        Utility.waitToExit(10000);
+        return;
+    }
 
-    Utility.waitToExit(60000 * 5);
+    const didStart = await System.docker.startContainer(inputPath);
+    if (!didStart) {
+        console.log(`Could not start Docker Container.`);
+        console.log(`Program will exit in 10 seconds...`);
+        Utility.waitToExit(10000);
+        return;
+    }
+
+    console.log(`Program will stop container in 5 seconds...`);
+    await Utility.sleep(5000);
+    await System.docker.stopRelevantContainers();
 }
 
 main();
