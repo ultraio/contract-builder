@@ -8,14 +8,14 @@ import { assert } from '../utility/assert';
 
 async function findContractPath() {
   // sorry for this. i know it looks awful
-  // \\\ is to prevent interpolation
+  // \\\ will be interpolated as \ by ts. then \$1 will turned into $1, i.e print the first item
   const grepCmd = `bash -c '\
     grep -i contract /opt/buildable/* --exclude="*.abi" --exclude="*.wasm" \
     | awk -F: "{print \\\$1}" \
     | uniq'`
   let paths = await execDockerCommand(containerName, grepCmd)
   assert(paths, "Couldn't find a contract file");
-  assert(paths.indexOf('\n') == -1, 'Multiple matches. Please drag and drop the correct contract file');
+  assert(paths.indexOf('\n') == -1, 'Multiple matches. Please drag and drop the right contract file');
   return paths;
 }
 

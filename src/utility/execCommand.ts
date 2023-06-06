@@ -2,9 +2,8 @@ import { exec } from 'child_process';
 import { dockerCommand } from 'docker-cli-js';
 
 export function execCommand(command: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     exec(command, (error, stdout, stderr) => {
-      console.log('gotta', error, stdout, stderr)
       if (error) {
         resolve('');
         return;
@@ -23,10 +22,8 @@ export function execDockerCommand(container: string, cmd: string, returnErr?: bo
     dockerCommand(
       `exec ${container} ${cmd}`, { echo: echo }
     ).then((res) => {
-      // console.log('gotta ', res)
       resolve(res.raw.trim())
     }).catch((err) => {
-      // console.log('gotta err:', err)
       if (returnErr) {
         reject(err.stderr)
       } else {
