@@ -1,4 +1,4 @@
 export type BuildOpts = {
-  contractPath?: string
-  buildVars?: string
-}
+    contractPath?: string;
+    buildVars?: string;
+};

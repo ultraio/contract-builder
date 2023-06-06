@@ -10,7 +10,7 @@ import { execDockerCommand } from '../utility/execCommand';
 
 const CMAKE_FILENAME = 'CMakeLists.txt';
 
-export async function build(inputPath: string) {
+export async function buildContract(inputPath: string) {
     let opts: BuildOpts = {};
     let buildCmd: string;
     let getBuildCmd: (inputPath: string, opts: BuildOpts) => Promise<string>;

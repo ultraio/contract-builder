@@ -1,9 +1,7 @@
 import * as path from 'path';
-// import ora from 'ora';
-
 import * as System from './system';
 import * as Utility from './utility';
-import { build as buildContract } from './builder';
+import { buildContract } from './builder';
 
 async function main() {
     const isAvailable = await System.docker.isDockerAvailable();
@@ -44,13 +42,12 @@ async function main() {
         Utility.waitToExit(10000);
         return;
     }
-    // const spinner = ora('Building contracts...').start();
+
     try {
         await buildContract(inputPath);
     } catch (err) {
         console.log('Failed to build a project:', err);
     }
-    // spinner.stop();
 
     console.log(`Program will stop container in 5 seconds...`);
     await Utility.sleep(5000);
