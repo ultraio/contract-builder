@@ -1,8 +1,7 @@
 import { dockerCommand } from 'docker-cli-js';
 import ora from 'ora'; // CommonJS is only supported up-to 5.4.1
 
-const containerName = 'ultra-contract-builder';
-const imageName = 'quay.io/ultra.io/3rdparty-devtools';
+import { containerName, imageName } from '../constants';
 
 export async function isDockerAvailable(): Promise<boolean> {
     const spinner = ora('Checking for Docker Installation...').start();

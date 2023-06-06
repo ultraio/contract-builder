@@ -23,10 +23,12 @@
         "prepare": "husky install"
     },
     "dependencies": {
+        "@types/glob": "^8.1.0",
         "commander": "^10.0.1",
         "docker-cli-js": "^2.10.0",
         "inquirer": "8.2.4",
-        "ora": "^5.4.1"
+        "ora": "^5.4.1",
+        "tiny-glob": "^0.2.9"
     },
     "devDependencies": {
         "@types/inquirer": "^9.0.3",

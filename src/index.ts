@@ -1,5 +1,7 @@
+import * as path from 'path';
 import * as System from './system';
 import * as Utility from './utility';
+import { buildContract } from './builder';
 
 async function main() {
     const isAvailable = await System.docker.isDockerAvailable();
@@ -32,12 +34,19 @@ async function main() {
         return;
     }
 
-    const didStart = await System.docker.startContainer(inputPath);
+    const isDir = System.cli.isDir(inputPath);
+    const didStart = await System.docker.startContainer(isDir ? inputPath : path.dirname(inputPath));
     if (!didStart) {
         console.log(`Could not start Docker Container.`);
         console.log(`Program will exit in 10 seconds...`);
         Utility.waitToExit(10000);
         return;
+    }
+
+    try {
+        await buildContract(inputPath);
+    } catch (err) {
+        console.log('Failed to build a project:', err);
     }
 
     console.log(`Program will stop container in 5 seconds...`);

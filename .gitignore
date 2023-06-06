@@ -111,3 +111,6 @@ metadata-tool-report.txt
 
 # Mac
 *.DS_Store
+
+*.wasm
+*.abi
