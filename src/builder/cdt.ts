@@ -1,45 +1,46 @@
-import * as path from 'path';
+import glob from 'tiny-glob';
+import fs from 'fs';
 
-import { containerName, containerBuildDir } from '../constants';
-import { BuildOpts } from "./types"
+import { containerName } from '../constants';
+import { BuildOpts } from './types';
 
-import { execDockerCommand } from "../utility/execCommand";
-import { assert } from '../utility/assert';
+import * as Utility from '../utility';
 
-async function findContractPath() {
-  // sorry for this. i know it looks awful
-  // \\\ will be interpolated as \ by ts. then \$1 will turned into $1, i.e print the first item
-  const grepCmd = `bash -c '\
-    grep -i contract /opt/buildable/* --exclude="*.abi" --exclude="*.wasm" \
-    | awk -F: "{print \\\$1}" \
-    | uniq'`
-  let paths = await execDockerCommand(containerName, grepCmd)
-  assert(paths, "Couldn't find a contract file");
-  assert(paths.indexOf('\n') == -1, 'Multiple matches. Please drag and drop the right contract file');
-  return paths;
-}
+export async function getBuildCmd(inputPath: string, opts: BuildOpts): Promise<string> {
+    const compilerName = (await Utility.docker.execDockerCommand(containerName, 'eosio-cpp --version'))
+        ? 'eosio-cpp'
+        : 'cdt-cpp';
 
-export async function getBuildCmd(opts: BuildOpts): Promise<string> {
-  const compilerName = (await execDockerCommand(containerName, "eosio-cpp --version")) ? "eosio-cpp" : "cdt-cpp";
-  let cppFileList: Array<String> = [];
-  let contractFilePath;
-  if (opts.contractPath) {
-    contractFilePath = opts.contractPath;
-  } else {
-    contractFilePath = await findContractPath();
-    const currentDirectoryFiles = (await execDockerCommand(containerName, 'ls /opt/buildable')).split('\n');
-    for (let filename of currentDirectoryFiles) {
-      const extension = path.extname(filename);
-      const filePath = path.join(containerBuildDir, filename)
-      if (filePath != contractFilePath && (extension === '.cpp' || extension === '.cc')) {
-        cppFileList.push(filePath)
-      }
+    let cppFileList: Array<String> = [];
+    let contractFilePath: string | undefined;
+
+    if (opts.contractPath) {
+        contractFilePath = opts.contractPath;
+    } else {
+        console.log(`Using Input Path: ${inputPath}`);
+
+        const files = await glob(`${inputPath}/*.{cpp,cc}`);
+        for (let filePath of files) {
+            const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+            if (data.includes('eosio::contract')) {
+                contractFilePath = Utility.inputPathToDockerPath(filePath);
+                continue;
+            }
+
+            cppFileList.push(Utility.inputPathToDockerPath(filePath));
+        }
     }
-  }
-  // eosio-cpp classAImpl.cpp classBImpl.cpp contract.cpp -o /opt/buildable/contract.wasm
-  // contract file should be the last in the cpp files list
-  // it's a quirk in the way cpp linker works
-  cppFileList.push(contractFilePath)
-  const wasmFilePath = contractFilePath.substring(0, contractFilePath.lastIndexOf('.')) + '.wasm';
-  return `${compilerName} ${cppFileList.join(' ')} -o ${wasmFilePath}`;
+
+    if (typeof contractFilePath === 'undefined') {
+        const errorMessage = 'Could not find entry point .cpp or .cc file that contains "eosio::contract"';
+        Utility.assert(typeof contractFilePath !== 'undefined', errorMessage);
+        throw new Error(errorMessage);
+    }
+
+    // eosio-cpp classAImpl.cpp classBImpl.cpp contract.cpp -o /opt/buildable/contract.wasm
+    // contract file should be the last in the cpp files list
+    // it's a quirk in the way cpp linker works
+    cppFileList.push(contractFilePath);
+    const wasmFilePath = contractFilePath.substring(0, contractFilePath.lastIndexOf('.')) + '.wasm';
+    return `${compilerName} ${cppFileList.join(' ')} -o ${wasmFilePath}`;
 }

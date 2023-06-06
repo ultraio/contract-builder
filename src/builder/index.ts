@@ -11,21 +11,21 @@ import { execDockerCommand } from '../utility/execCommand';
 const CMAKE_FILENAME = 'CMakeLists.txt';
 
 export async function build(inputPath: string) {
-  let opts: BuildOpts = {};
-  let buildCmd;
-  let getBuildCmd;
+    let opts: BuildOpts = {};
+    let buildCmd: string;
+    let getBuildCmd: (inputPath: string, opts: BuildOpts) => Promise<string>;
 
-  const isDir = fs.lstatSync(inputPath).isDirectory();
+    const isDir = fs.lstatSync(inputPath).isDirectory();
 
-  if (isDir && fs.existsSync(path.join(inputPath, CMAKE_FILENAME))) {
-      getBuildCmd = cmake.getBuildCmd;
-  } else {
-      if (!isDir) {
-        opts.contractPath = path.join(containerBuildDir, path.basename(inputPath));
-      }
-      getBuildCmd = cdt.getBuildCmd;
-  }
+    if (isDir && fs.existsSync(path.join(inputPath, CMAKE_FILENAME))) {
+        getBuildCmd = cmake.getBuildCmd;
+    } else {
+        if (!isDir) {
+            opts.contractPath = path.join(containerBuildDir, path.basename(inputPath));
+        }
+        getBuildCmd = cdt.getBuildCmd;
+    }
 
-  buildCmd = await getBuildCmd(opts);
-  await execDockerCommand(containerName, buildCmd, true)
+    buildCmd = await getBuildCmd(inputPath, opts);
+    await execDockerCommand(containerName, buildCmd, true, true);
 }

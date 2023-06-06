@@ -1,5 +1,5 @@
-import { BuildOpts } from "./types"
+import { BuildOpts } from './types';
 
-export async function getBuildCmd(opts: BuildOpts): Promise<string> {
-  return "TBA later"
+export async function getBuildCmd(originalPath: string, opts: BuildOpts): Promise<string> {
+    return 'TBA later';
 }

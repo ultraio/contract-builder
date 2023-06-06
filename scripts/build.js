@@ -3,7 +3,7 @@ const { exec } = require('pkg');
 const packageJson = require('../package');
 const rimraf = require('rimraf');
 
-const PROGRAM_NAME = 'contract-builder'
+const PROGRAM_NAME = 'contract-builder';
 
 function matchRule(str, rule) {
     var escapeRegex = (str) => str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
@@ -24,16 +24,12 @@ function matchRule(str, rule) {
 
     fs.renameSync('package.json', 'package.json.backup');
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 4));
-    await exec(['package.json', '--out-path', 'releases', '--compress', 'Brotli']);
+    await exec(['package.json', '--out-path', 'releases']);
     fs.renameSync('package.json.backup', 'package.json');
-
-    const releaseName = `${PROGRAM_NAME}-v${releaseVersion}`;
-    fs.renameSync(`./releases/${PROGRAM_NAME}-linux`, `./releases/${releaseName}-linux`);
-    fs.renameSync(`./releases/${PROGRAM_NAME}-macos`, `./releases/${releaseName}-macos`);
-    fs.renameSync(`./releases/${PROGRAM_NAME}-win.exe`, `./releases/${releaseName}-win.exe`);
 
     packageJson.bin = {
         [PROGRAM_NAME]: './bin/index.js',
     };
+
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 4));
 })();

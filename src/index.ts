@@ -1,5 +1,5 @@
 import * as path from 'path';
-import ora from 'ora';
+// import ora from 'ora';
 
 import * as System from './system';
 import * as Utility from './utility';
@@ -36,7 +36,7 @@ async function main() {
         return;
     }
 
-    const isDir = System.cli.isDir(inputPath)
+    const isDir = System.cli.isDir(inputPath);
     const didStart = await System.docker.startContainer(isDir ? inputPath : path.dirname(inputPath));
     if (!didStart) {
         console.log(`Could not start Docker Container.`);
@@ -44,13 +44,13 @@ async function main() {
         Utility.waitToExit(10000);
         return;
     }
-    const spinner = ora('Building contracts...').start();
+    // const spinner = ora('Building contracts...').start();
     try {
-        await buildContract(inputPath)
-    } catch(err) {
-        console.log("Failed to build a project:", err)
+        await buildContract(inputPath);
+    } catch (err) {
+        console.log('Failed to build a project:', err);
     }
-    spinner.stop();
+    // spinner.stop();
 
     console.log(`Program will stop container in 5 seconds...`);
     await Utility.sleep(5000);

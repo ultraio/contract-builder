@@ -9,7 +9,7 @@ const program = new Command();
 const CPP_FILE_EXTENSIONS = ['.cpp', '.hpp', '.cc', '.h'];
 
 export function isDir(inputPath: string) {
-    return fs.lstatSync(inputPath).isDirectory()
+    return fs.lstatSync(inputPath).isDirectory();
 }
 /**
  * Returns a directory from a path if the path is a file.
@@ -64,5 +64,5 @@ export async function getInputAndOutput(): Promise<[input: string, output: strin
 
     outputPath = getOutputPath(inputPath);
     console.log(`input ${inputPath}, output: ${outputPath}`);
-    return [inputPath, outputPath];
+    return [Utility.normalizePath(inputPath), Utility.normalizePath(outputPath)];
 }
