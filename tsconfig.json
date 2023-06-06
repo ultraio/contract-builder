@@ -12,7 +12,8 @@
             "*": ["node_modules/*", "src/*", "test/*"]
         },
         "declaration": true,
-        "strict": true
+        "strict": true,
+        "noUnusedLocals": true
     },
     "include": ["./src/**/*", "test/schemaValidator.test.ts"],
     "exclude": ["./test/**/*"]
