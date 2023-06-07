@@ -26,6 +26,8 @@ export function execDockerCommand(
     return new Promise((resolve, reject) => {
         const execCmd = workdir ? `exec --workdir ${workdir}` : `exec`;
         const command = `${execCmd} ${container} ${cmd}`;
+
+        console.log(command);
         dockerCommand(command, { echo: echo })
             .then((res) => {
                 resolve(res.raw.trim());

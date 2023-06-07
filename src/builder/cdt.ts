@@ -17,8 +17,6 @@ export async function getBuildCmd(inputPath: string, opts: BuildOpts): Promise<s
     if (opts.contractPath) {
         contractFilePath = opts.contractPath;
     } else {
-        console.log(`Using Input Path: ${inputPath}`);
-
         const files = await glob(`${inputPath}/*.{cpp,cc}`);
         for (let filePath of files) {
             const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
@@ -41,6 +39,12 @@ export async function getBuildCmd(inputPath: string, opts: BuildOpts): Promise<s
     // contract file should be the last in the cpp files list
     // it's a quirk in the way cpp linker works
     cppFileList.push(contractFilePath);
+
     const wasmFilePath = contractFilePath.substring(0, contractFilePath.lastIndexOf('.')) + '.wasm';
-    return `${compilerName} ${cppFileList.join(' ')} ${opts.buildVars} -o ${wasmFilePath}`;
+
+    if (opts.buildVars) {
+        return `${compilerName} ${cppFileList.join(' ')} ${opts.buildVars} -o ${wasmFilePath}`;
+    }
+
+    return `${compilerName} ${cppFileList.join(' ')} -o ${wasmFilePath}`;
 }
