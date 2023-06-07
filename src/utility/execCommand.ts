@@ -20,11 +20,13 @@ export function execCommand(command: string): Promise<string> {
 export function execDockerCommand(
     container: string,
     cmd: string,
-    options: { returnErr?: boolean; echo?: boolean } = {}
+    options: { returnErr?: boolean; echo?: boolean; workdir?: string } = {}
 ): Promise<string> {
-    const { returnErr = false, echo = false } = options;
+    const { returnErr = false, echo = false, workdir = undefined } = options;
     return new Promise((resolve, reject) => {
-        dockerCommand(`exec ${container} ${cmd}`, { echo: echo })
+        const execCmd = workdir ? `exec --workdir ${workdir}` : `exec`;
+        const command = `${execCmd} ${container} ${cmd}`;
+        dockerCommand(command, { echo: echo })
             .then((res) => {
                 resolve(res.raw.trim());
             })

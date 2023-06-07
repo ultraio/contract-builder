@@ -16,10 +16,13 @@ export async function buildContract(inputPath: string, buildOptions: string) {
     let getBuildCmd: (inputPath: string, opts: BuildOpts) => Promise<string>;
 
     const isDir = fs.lstatSync(inputPath).isDirectory();
+    const isCmake = isDir && fs.existsSync(path.join(inputPath, CMAKE_FILENAME));
 
     opts.buildVars = buildOptions;
-    if (isDir && fs.existsSync(path.join(inputPath, CMAKE_FILENAME))) {
+
+    if (isCmake) {
         getBuildCmd = cmake.getBuildCmd;
+        await execDockerCommand(containerName, `mkdir -p /opt/buildable/build`);
     } else {
         if (!isDir) {
             opts.contractPath = path.join(containerBuildDir, path.basename(inputPath));
@@ -28,6 +31,18 @@ export async function buildContract(inputPath: string, buildOptions: string) {
     }
 
     buildCmd = await getBuildCmd(inputPath, opts);
-    console.log('build cmd:', buildCmd);
-    await execDockerCommand(containerName, `bash -c '${buildCmd}'`, { returnErr: true, echo: true });
+
+    await execDockerCommand(containerName, buildCmd, {
+        returnErr: true,
+        echo: true,
+        workdir: isCmake ? '/opt/buildable/build' : undefined,
+    });
+
+    if (isCmake) {
+        await execDockerCommand(containerName, 'make -j', {
+            returnErr: true,
+            echo: true,
+            workdir: isCmake ? '/opt/buildable/build' : undefined,
+        });
+    }
 }
