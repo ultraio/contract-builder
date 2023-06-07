@@ -18,7 +18,8 @@ async function main() {
         return;
     }
 
-    const [inputPath, outputPath] = await System.cli.getInputAndOutput();
+    const [inputPath, outputPath, buildOpts] = await System.cli.getInputAndOutput();
+
     if (typeof inputPath === 'undefined' || typeof outputPath === 'undefined') {
         console.log(`Could not determine input path for files, try another path.`);
         console.log(`Program will exit in 10 seconds...`);
@@ -44,7 +45,7 @@ async function main() {
     }
 
     try {
-        await buildContract(inputPath);
+        await buildContract(inputPath, buildOpts);
     } catch (err) {
         console.log('Failed to build a project:', err);
     }

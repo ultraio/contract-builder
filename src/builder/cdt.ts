@@ -22,7 +22,7 @@ export async function getBuildCmd(inputPath: string, opts: BuildOpts): Promise<s
         const files = await glob(`${inputPath}/*.{cpp,cc}`);
         for (let filePath of files) {
             const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
-            if (data.includes('eosio::contract')) {
+            if (data.includes('contract')) {
                 contractFilePath = Utility.inputPathToDockerPath(filePath);
                 continue;
             }
@@ -37,10 +37,10 @@ export async function getBuildCmd(inputPath: string, opts: BuildOpts): Promise<s
         throw new Error(errorMessage);
     }
 
-    // eosio-cpp classAImpl.cpp classBImpl.cpp contract.cpp -o /opt/buildable/contract.wasm
+    // eosio-cpp classAImpl.cpp classBImpl.cpp contract.cpp -DNDEBUG=1 -DTEST=false -o /opt/buildable/contract.wasm
     // contract file should be the last in the cpp files list
     // it's a quirk in the way cpp linker works
     cppFileList.push(contractFilePath);
     const wasmFilePath = contractFilePath.substring(0, contractFilePath.lastIndexOf('.')) + '.wasm';
-    return `${compilerName} ${cppFileList.join(' ')} -o ${wasmFilePath}`;
+    return `${compilerName} ${cppFileList.join(' ')} ${opts.buildVars} -o ${wasmFilePath}`;
 }

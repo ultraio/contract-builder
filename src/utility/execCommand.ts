@@ -17,7 +17,12 @@ export function execCommand(command: string): Promise<string> {
     });
 }
 
-export function execDockerCommand(container: string, cmd: string, returnErr?: boolean, echo = false): Promise<string> {
+export function execDockerCommand(
+    container: string,
+    cmd: string,
+    options: { returnErr?: boolean; echo?: boolean } = {}
+): Promise<string> {
+    const { returnErr = false, echo = false } = options;
     return new Promise((resolve, reject) => {
         dockerCommand(`exec ${container} ${cmd}`, { echo: echo })
             .then((res) => {
