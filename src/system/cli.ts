@@ -67,6 +67,6 @@ export async function getInputAndOutput(): Promise<[input: string, output: strin
     }
 
     outputPath = getOutputPath(inputPath);
-    console.log(`input ${inputPath}, output: ${outputPath}`);
+    console.log(`Input: ${inputPath}, Output: ${outputPath}`);
     return [Utility.normalizePath(inputPath), Utility.normalizePath(outputPath), buildOpts];
 }
