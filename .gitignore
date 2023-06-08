@@ -112,5 +112,7 @@ metadata-tool-report.txt
 # Mac
 *.DS_Store
 
+# Build artifacts
+build/
 *.wasm
 *.abi

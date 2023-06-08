@@ -18,11 +18,11 @@ export function isDir(inputPath: string) {
  * @return {string}
  */
 function getOutputPath(inputPath: string): string {
-    return fs.lstatSync(inputPath).isDirectory() ? inputPath : path.dirname(inputPath);
+    return isDir(inputPath) ? inputPath : path.dirname(inputPath);
 }
 
 function validatePath(inputPath) {
-    if (fs.lstatSync(inputPath).isDirectory()) {
+    if (isDir(inputPath)) {
         return true;
     }
 
@@ -31,10 +31,13 @@ function validatePath(inputPath) {
     return CPP_FILE_EXTENSIONS.indexOf(path.extname(inputPath)) != -1;
 }
 
-export async function getInputAndOutput(): Promise<[input: string, output: string]> {
-    program.option('-i, --input <inputPath>', 'Specify the input path').parse(process.argv);
+export async function getInputAndOutput(): Promise<[input: string, output: string, buildOpts: string]> {
+    program
+        .option('-i, --input <inputPath>', 'Specify the input path')
+        .option('-b, --build <buildOptions>', 'Specify build options, i.e -b "-DNDEBUG=1 -DTEST=false"')
+        .parse(process.argv);
 
-    let inputPath, outputPath;
+    let inputPath, outputPath, buildOpts;
 
     if (process.argv.length == 3) {
         // drag & drop
@@ -42,6 +45,7 @@ export async function getInputAndOutput(): Promise<[input: string, output: strin
     } else if (program.getOptionValue('input')) {
         // command line
         inputPath = program.opts().input;
+        buildOpts = program.opts().build;
     } else {
         // user double-clicked on an executable
         ({ inputPath } = await inquirer.prompt([
@@ -63,6 +67,6 @@ export async function getInputAndOutput(): Promise<[input: string, output: strin
     }
 
     outputPath = getOutputPath(inputPath);
-    console.log(`input ${inputPath}, output: ${outputPath}`);
-    return [Utility.normalizePath(inputPath), Utility.normalizePath(outputPath)];
+    console.log(`Input: ${inputPath}, Output: ${outputPath}`);
+    return [Utility.normalizePath(inputPath), Utility.normalizePath(outputPath), buildOpts];
 }
