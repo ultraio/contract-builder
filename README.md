@@ -14,23 +14,25 @@ Allows for cross environment compilation by utilizing Docker in the background.
 
 ## Installation
 
-```
-git clone git@github.com:ultraio/contract-builder.git
-```
+### As CLI Tool
 
 ```
-cd contract-builder
+npm i -g @ultraos/contract-builder
 ```
 
-```
-npm install
-```
+### As Library
 
 ```
-npm run dev
+npm i @ultraos/contract-builder
 ```
 
-## Build Releases
+### As Binary
+
+Download the files from the [official repository](https://github.com/ultraio/contract-builder/releases).
+
+## Build
+
+### As Binary Release
 
 Releases will be output to the `releases` folder if built successfully.
 
@@ -38,18 +40,31 @@ Releases will be output to the `releases` folder if built successfully.
 npm run build:releases
 ```
 
-## Build Library
+### As Library
 
 ```
 npm run build
 ```
 
-## Usage
+## Library Usage
+
+```ts
+import { build } from 'ultraos/contract-builder';
+
+async function doSomething() {
+    // The folder /my-contract contains .cpp files for eosio based smart contracts
+    const didTryBuilding = await build('./my-contract');
+}
+
+doSomething();
+```
+
+## CLI Usage
 
 To build a contract simply drag and drop a folder with source code onto the binary. The tool will start a docker image and places build artifacts (wasm and abi files) along with the source files. Another way of using the tool is through command line:
 
 ```
-$ contract-builder-macos ./test/example-contract
+contract-builder ./test/example-contract
 Warning, empty ricardian clause file
 Warning, empty ricardian clause file
 Warning, action <hi> does not have a ricardian contract
@@ -71,17 +86,4 @@ $ contract-builder -i ./test/example-cmake-contract
 -- Generating done
 -- Build files have been written to: /opt/buildable/build
 [100%] Built target eosio.token
-```
-
-## Library Usage
-
-```ts
-import { build } from 'ultraos/contract-builder';
-
-async function doSomething() {
-    // The folder /my-contract contains .cpp files for eosio based smart contracts
-    const didTryBuilding = await build('./my-contract');
-}
-
-doSomething();
 ```
