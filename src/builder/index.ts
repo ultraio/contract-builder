@@ -51,9 +51,9 @@ export async function buildContract(
             echo: true,
             workdir: isCmake ? '/opt/buildable/build' : undefined,
         });
-    }
 
-    if (options.appendLine) {
-        options.appendLine(response);
+        if (options.appendLine) {
+            options.appendLine(response);
+        }
     }
 }
