@@ -45,7 +45,7 @@ export async function start() {
     }
 
     try {
-        await buildContract(inputPath, buildOpts);
+        await buildContract(inputPath, { buildOpts });
     } catch (err) {
         console.log('Failed to build a project:', err);
     }
@@ -67,38 +67,75 @@ export async function start() {
  * @param {(string | undefined)} [buildOpts=undefined]
  * @return {Promise<boolean>}
  */
-export async function build(inputPath: string, buildOpts: string | undefined = undefined): Promise<boolean> {
+export async function build(
+    inputPath: string,
+    options: { buildOpts?: string; appendLine?: (value: string) => void }
+): Promise<boolean> {
     const isAvailable = await System.docker.isDockerAvailable();
     if (!isAvailable) {
-        console.error(`Docker is unavailable on this system.`);
+        const comment = `Docker is unavailable on this system.`;
+
+        if (options.appendLine) {
+            options.appendLine(comment);
+        }
+
+        console.error(comment);
         return false;
     }
 
     const didPullImage = await System.docker.getLatestImage();
     if (!didPullImage) {
-        console.error(`Could not pull latest image with docker.`);
+        const comment = `Could not pull latest image with docker.`;
+
+        if (options.appendLine) {
+            options.appendLine(comment);
+        }
+
+        console.error(comment);
         return false;
     }
 
     const didClearContainers = await System.docker.stopRelevantContainers();
     if (!didClearContainers) {
-        console.error(`Was unable to stop existing containers for building contracts.`);
+        const comment = `Was unable to stop existing containers for building contracts.`;
+
+        if (options.appendLine) {
+            options.appendLine(comment);
+        }
+
+        console.error(comment);
         return false;
     }
 
     const isDir = System.cli.isDir(inputPath);
     const didStart = await System.docker.startContainer(isDir ? inputPath : path.dirname(inputPath));
     if (!didStart) {
-        console.error(`Unable to start the container successfully for building contracts.`);
+        const comment = `Unable to start the container successfully for building contracts.`;
+
+        if (options.appendLine) {
+            options.appendLine(comment);
+        }
+
+        console.error(comment);
         return false;
     }
 
     try {
-        await buildContract(inputPath, buildOpts ? buildOpts : '');
-    } catch (err) {
-        console.error('Failed to build a project:', err);
+        await buildContract(inputPath, options);
+    } catch (err: unknown) {
+        const comment = `Failed to build project:`;
+
+        if (options.appendLine) {
+            options.appendLine(comment + String(err));
+        }
+
+        console.error(comment, err);
         return false;
     }
 
     return true;
+}
+
+if (process.argv.includes('--start')) {
+    start();
 }

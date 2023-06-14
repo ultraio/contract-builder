@@ -10,7 +10,10 @@ import { execDockerCommand } from '../utility/execCommand';
 
 const CMAKE_FILENAME = 'CMakeLists.txt';
 
-export async function buildContract(inputPath: string, buildOptions: string) {
+export async function buildContract(
+    inputPath: string,
+    options: { buildOpts?: string; appendLine?: (value: string) => void } = {}
+) {
     let opts: BuildOpts = {};
     let buildCmd: string;
     let getBuildCmd: (inputPath: string, opts: BuildOpts) => Promise<string>;
@@ -18,7 +21,7 @@ export async function buildContract(inputPath: string, buildOptions: string) {
     const isDir = fs.lstatSync(inputPath).isDirectory();
     const isCmake = isDir && fs.existsSync(path.join(inputPath, CMAKE_FILENAME));
 
-    opts.buildVars = buildOptions;
+    opts.buildVars = options.buildOpts ? options.buildOpts : '';
 
     if (isCmake) {
         getBuildCmd = cmake.getBuildCmd;
@@ -32,17 +35,25 @@ export async function buildContract(inputPath: string, buildOptions: string) {
 
     buildCmd = await getBuildCmd(inputPath, opts);
 
-    await execDockerCommand(containerName, buildCmd, {
+    let response = await execDockerCommand(containerName, buildCmd, {
         returnErr: true,
         echo: true,
         workdir: isCmake ? '/opt/buildable/build' : undefined,
     });
 
+    if (options.appendLine) {
+        options.appendLine(response);
+    }
+
     if (isCmake) {
-        await execDockerCommand(containerName, 'make -j', {
+        response = await execDockerCommand(containerName, 'make -j', {
             returnErr: true,
             echo: true,
             workdir: isCmake ? '/opt/buildable/build' : undefined,
         });
+    }
+
+    if (options.appendLine) {
+        options.appendLine(response);
     }
 }

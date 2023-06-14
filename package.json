@@ -1,6 +1,6 @@
 {
     "name": "@ultraio/contract-builder",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "",
     "bin": {
         "contract-builder": "./bin/cli.js"
@@ -18,7 +18,7 @@
     },
     "scripts": {
         "[-] Build Scripts": "",
-        "dev": "ts-node src/index.ts",
+        "dev": "ts-node src/index.ts -- --start",
         "tsc:build": "tsc",
         "build:releases": "tsc && node scripts/build.js",
         "build": "tsc && tsc -m ES6 --outDir lib-es",
