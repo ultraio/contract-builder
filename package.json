@@ -2,10 +2,12 @@
     "name": "contract-builder",
     "version": "1.0.0",
     "description": "",
-    "main": "index.ts",
     "bin": {
-        "contract-builder": "./bin/index.js"
+        "contract-builder": "./bin/cli.js"
     },
+    "main": "lib/index.js",
+    "module": "lib-es/index.js",
+    "types": "lib/index.d.ts",
     "bugs": {
         "url": "https://github.com/ultraio/contract-builder/issues"
     },
@@ -18,7 +20,8 @@
         "[-] Build Scripts": "",
         "dev": "ts-node src/index.ts",
         "tsc:build": "tsc",
-        "build": "tsc && node scripts/build.js",
+        "build:releases": "tsc && node scripts/build.js",
+        "build": "tsc && tsc -m ES6 --outDir lib-es",
         "[-] Formatting Utilities": "",
         "prepare": "husky install"
     },
@@ -26,6 +29,7 @@
         "@types/glob": "^8.1.0",
         "commander": "^10.0.1",
         "docker-cli-js": "^2.10.0",
+        "esm": "^3.2.25",
         "inquirer": "8.2.4",
         "ora": "^5.4.1",
         "tiny-glob": "^0.2.9"
@@ -38,7 +42,6 @@
         "pkg": "^5.8.1",
         "prettier": "^2.8.8",
         "pretty-quick": "^3.1.3",
-        "rimraf": "^5.0.0",
         "ts-node": "^10.9.1",
         "ts-node-dev": "^2.0.0",
         "typescript": "^5.0.4"

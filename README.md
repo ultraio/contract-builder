@@ -30,9 +30,15 @@ npm install
 npm run dev
 ```
 
-## Build
+## Build Releases
 
 Releases will be output to the `releases` folder if built successfully.
+
+```
+npm run build:releases
+```
+
+## Build Library
 
 ```
 npm run build
@@ -65,4 +71,17 @@ $ contract-builder -i ./test/example-cmake-contract
 -- Generating done
 -- Build files have been written to: /opt/buildable/build
 [100%] Built target eosio.token
+```
+
+## Library Usage
+
+```ts
+import { build } from 'ultraos/contract-builder';
+
+async function doSomething() {
+    // The folder /my-contract contains .cpp files for eosio based smart contracts
+    const didTryBuilding = await build('./my-contract');
+}
+
+doSomething();
 ```

@@ -116,3 +116,6 @@ metadata-tool-report.txt
 build/
 *.wasm
 *.abi
+
+lib/
+lib-es/

@@ -3,7 +3,7 @@ import * as System from './system';
 import * as Utility from './utility';
 import { buildContract } from './builder';
 
-async function main() {
+export async function start() {
     const isAvailable = await System.docker.isDockerAvailable();
     if (!isAvailable) {
         console.log(`Program will exit in 10 seconds...`);
@@ -55,4 +55,50 @@ async function main() {
     await System.docker.stopRelevantContainers();
 }
 
-main();
+/**
+ * Build a smart contract located in a specific directory.
+ *
+ * Only need to pass the directory where the cmake file, or .cpp files are located.
+ *
+ * It will return true, if it tried to build the contract.
+ *
+ * @export
+ * @param {string} inputPath
+ * @param {(string | undefined)} [buildOpts=undefined]
+ * @return {Promise<boolean>}
+ */
+export async function build(inputPath: string, buildOpts: string | undefined = undefined): Promise<boolean> {
+    const isAvailable = await System.docker.isDockerAvailable();
+    if (!isAvailable) {
+        console.error(`Docker is unavailable on this system.`);
+        return false;
+    }
+
+    const didPullImage = await System.docker.getLatestImage();
+    if (!didPullImage) {
+        console.error(`Could not pull latest image with docker.`);
+        return false;
+    }
+
+    const didClearContainers = await System.docker.stopRelevantContainers();
+    if (!didClearContainers) {
+        console.error(`Was unable to stop existing containers for building contracts.`);
+        return false;
+    }
+
+    const isDir = System.cli.isDir(inputPath);
+    const didStart = await System.docker.startContainer(isDir ? inputPath : path.dirname(inputPath));
+    if (!didStart) {
+        console.error(`Unable to start the container successfully for building contracts.`);
+        return false;
+    }
+
+    try {
+        await buildContract(inputPath, buildOpts ? buildOpts : '');
+    } catch (err) {
+        console.error('Failed to build a project:', err);
+        return false;
+    }
+
+    return true;
+}

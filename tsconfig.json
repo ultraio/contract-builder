@@ -6,7 +6,7 @@
         "noImplicitAny": false,
         "moduleResolution": "node",
         "sourceMap": false,
-        "outDir": "dist",
+        "outDir": "lib",
         "baseUrl": "./src",
         "paths": {
             "*": ["node_modules/*", "src/*", "test/*"]

@@ -17,11 +17,11 @@ export function isDir(inputPath: string) {
  * @param {string} inputPath
  * @return {string}
  */
-function getOutputPath(inputPath: string): string {
+export function getOutputPath(inputPath: string): string {
     return isDir(inputPath) ? inputPath : path.dirname(inputPath);
 }
 
-function validatePath(inputPath) {
+function validatePath(inputPath: string) {
     if (isDir(inputPath)) {
         return true;
     }
